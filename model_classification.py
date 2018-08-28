@@ -61,14 +61,14 @@ ap.add_argument("-e", "--epochs", required=True, help='number of epochs')
 args = vars(ap.parse_args())
 epochs = int(args['epochs'])
 
-path = '../data/subsets/'
+path = '../data/m1.dir_6_density/'
 
 # Choosing parameters
 batch_size = 32
 print('epochs = %s, batch size = %s' % (epochs, batch_size))
 
 # summary of images
-with open(path+'train_X_n30000.dat') as f:
+with open(path+'2dft.dat') as f:
     nmodel = int(sum(1 for _ in f)/(50*50))
 print('nmodel =', nmodel)
 
@@ -86,12 +86,12 @@ input_shape = (img_rows, img_cols, 1)
 print("Reading training data")
 
 # read files
-with open(path+'train_X_n30000.dat') as f:
+with open(path+'2dft.dat') as f:
   lines=f.readlines()
-with open(path+'train_Y_n30000.dat') as f:
+with open(path+'2dftn1.dat') as f:
   lines1=f.readlines()
-#with open('../data/'+path+'/2dftn2.dat') as f:
-#  lines2=f.readlines()
+with open(path+'2dftn2.dat') as f:
+  lines2=f.readlines()
 
 x_train=np.zeros((nmodel,n_mesh3))
 y_train=np.zeros((nmodel,2))
@@ -107,21 +107,20 @@ for num,j in enumerate(lines):
     ibin+=1
     jbin=-1
 
-# for Y output (V_rel, rho)
+# for Y output (rho)
 ibin=0
 for num,j in enumerate(lines1):
   tm=j.strip().split()
   y_train[ibin,0]=float(tm[0])
-  y_train[ibin,1]=float(tm[1])
+  #y_train[ibin,1]=float(tm[1])
   ibin+=1
 
-# For morphological map (rho)
-#ibin=0
-#for num,j in enumerate(lines2):
-#  tm=j.strip().split()
-#  y_train[ibin,1]=float(tm[0])
-#  y_test[ibin,1]=float(tm[0])
-#  ibin+=1
+# For Y output (v_rel)
+ibin=0
+for num,j in enumerate(lines2):
+  tm=j.strip().split()
+  y_train[ibin,1]=float(tm[0])
+  ibin+=1
 
 x_train = x_train.reshape(x_train.shape[0], img_rows, img_cols, 1)
 
@@ -135,9 +134,9 @@ x_test=np.zeros((nmodel,n_mesh3))
 y_test=np.zeros((nmodel,2))
 
 # read test data
-with open('../data/'+path+'/test_X_n10000.dat') as f:
+with open('../data/'+path+'/2dfv.dat') as f:
   lines=f.readlines()
-with open('../data/'+path+'/test_Y_n10000.dat') as f:
+with open('../data/'+path+'/2dfvn.dat') as f:
   lines1=f.readlines()
 
 # test X
@@ -191,14 +190,14 @@ print("Saving model weights")
 
 # serialize model to JSON
 model_json = model.to_json()
-with open("../weights/subset"+str(nmodel)+"_"+str(epochs)+"_model.json", "w") as json_file:
+with open("../weights/m1.dir_6_"+str(nmodel)+"_"+str(epochs)+"_model.json", "w") as json_file:
     json_file.write(model_json)
 
 # serialize weights to HDF5
-model.save_weights("../weights/subset"+str(nmodel)+"_"+str(epochs)+"_model.h5")
+model.save_weights("../weights/m1.dir_6_"+str(nmodel)+"_"+str(epochs)+"_model.h5")
 
 # save model to loadable file
-model.save("../pretrained_models/subset"+str(nmodel)+"_"+str(epochs)+"_model.h5")
+model.save("../pretrained_models/m1.dir_6_"+str(nmodel)+"_"+str(epochs)+"_model.h5")
 
 # -----------------------------------------------------------------------
 # plot results
@@ -207,22 +206,22 @@ print("Plotting performance")
 
 # summarize history for accuracy
 plt.plot(history.history['acc'])
-plt.plot(history.history['val_acc'])
+#plt.plot(history.history['val_acc'])
 plt.title('model accuracy')
 plt.ylabel('accuracy')
 plt.xlabel('epoch')
 plt.legend(['train', 'test'], loc='upper left')
-plt.savefig('../plots/learning_curves/subset' + str(nmodel) + '_' + str(epochs) + '_accuracy.png')
+plt.savefig('../plots/learning_curves/m1.dir_6_' + str(nmodel) + '_' + str(epochs) + '_accuracy.png')
 plt.close()
 
 # summarize history for loss
 plt.plot(history.history['loss'])
-plt.plot(history.history['val_loss'])
+#plt.plot(history.history['val_loss'])
 plt.title('model loss')
 plt.ylabel('loss')
 plt.xlabel('epoch')
 plt.legend(['train', 'test'], loc='upper left')
-plt.savefig('../plots/learning_curves/subset' + str(nmodel) + '_' + str(epochs) + '_loss.png')
+plt.savefig('../plots/learning_curves/m1.dir_6_' + str(nmodel) + '_' + str(epochs) + '_loss.png')
 plt.close()
 
 # -----------------------------------------------------------------------
