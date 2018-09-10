@@ -41,24 +41,16 @@ import matplotlib.pyplot as plt
 
 print("Prediction with pre-trained weights")
 
-'''
-To execute this script you need to choose model parameters (see below)
-The changable parameters include:
-	- data used
-	- batch size
-	- number of epochs
-'''
-
 # setting up paths
-path_test = 'subsets/80000_10000/'
-path_weights = '../weights/'
+path_test = '../data/m1.dir_8_density/'
+path = '../gcloud_trained/m9.dir_e300/'
 
 # Choosing parameters
 batch_size = 64
 epochs = 50
 
 # summary of images
-with open('../data/'+path_test+'/test_X_n10000.dat') as f:
+with open(path_test+'2dft.dat') as f:
     nmodel_test = int(sum(1 for _ in f)/(50*50))
 print('nmodel test = %s' % nmodel_test)
 
@@ -80,9 +72,9 @@ x_test=np.zeros((nmodel_test,n_mesh3))
 y_test=np.zeros((nmodel_test,2))
 
 # read test data
-with open('../data/'+path_test+'/test_X_n10000.dat') as f:
+with open(path_test+'2dft.dat') as f:
   lines=f.readlines()
-with open('../data/'+path_test+'/test_Y_n10000.dat') as f:
+with open(path_test+'2dfvn.dat') as f:
   lines1=f.readlines()
 
 # test X
@@ -110,8 +102,8 @@ x_test = x_test.reshape(x_test.shape[0], img_rows, img_cols, 1)
 # loading model from pre-trained
 
 print("Reading model weights")
-#pretrain_model_path = '../pretrained_models/subset80000_10_model.h5'
 
+'''
 # read weights
 model = Sequential()
 model.add(Conv2D(32, kernel_size=(3, 3),
@@ -124,8 +116,9 @@ model.add(Flatten())
 model.add(Dense(128, activation='relu'))
 model.add(Dropout(0.5))
 model.add(Dense(2, activation='linear'))
-model.load_weights(path_weights + "subset80000_10_model.h5")
-#model = load_model(pretrain_model_path)
+model.load_weights(path_weights + "m1.dir_6_10000_300_model.h5")
+'''
+model = load_model(path+'m1.dir_9_e300_model.h5')
 print(model.summary())
 print("Weights loaded")
 
@@ -155,14 +148,14 @@ plt.hist(vrel_true)
 plt.title("Histogram of V_rel (true)")
 plt.xlabel("V_rel")
 plt.ylabel('Frequency')
-plt.savefig('../plots/80000_10000/hist_vrel_test.png')
+plt.savefig(path+'hist_vrel_tm8.png')
 plt.close()
 
 plt.hist(rho_true)
 plt.title('Histogram of rho (true)')
 plt.xlabel('Density (rho)')
 plt.ylabel('Frequency')
-plt.savefig('../plots/80000_10000/hist_rho_test.png')
+plt.savefig(path+'hist_rho_tm8.png')
 plt.close()
 
 # -----------------------------------------------------------------------
@@ -178,7 +171,7 @@ plt.plot(x_eq, y_eq, color='blue')
 plt.title("Performance (V_rel)")
 plt.xlabel("V_rel (true)")
 plt.ylabel('V_rel (pred)')
-plt.savefig('../plots/80000_10000/vrel_performance.png')
+plt.savefig(path+'vrel_performance_tm8.png')
 plt.close()
 
 # density performance
@@ -187,7 +180,7 @@ plt.plot(x_eq, y_eq, color='blue')
 plt.title("Performance (rho)")
 plt.xlabel("rho (true)")
 plt.ylabel('rho (pred)')
-plt.savefig('../plots/80000_10000/rho_performance.png')
+plt.savefig(path+'rho_performance_tm8.png')
 plt.close()
 
 # calculating cosine distance
@@ -204,7 +197,7 @@ plt.axvline(x=np.mean(cosine_distance), color='red')
 plt.title("Cosine Distance Histogram")
 plt.xlabel("Sample")
 plt.ylabel("Cosine Distance")
-plt.savefig('../plots/80000_10000/cosine_histogram.png')
+plt.savefig(path+'cosine_histogram_tm8.png')
 plt.close()
 
 print("Plots completed and saved")
