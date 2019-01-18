@@ -47,10 +47,12 @@ num_classes = 1
 print('epochs = %s, batch size = %s' % (epochs, batch_size))
 
 # path to training data files
-path_train = 'm1.dir_9_density/'
+path_den_train = 'm1.dir_9_density/'
+path_kin_train = 'm1.dir_9_kinematics/'
 
-# path to test data files (for the training process)
-path_test = 'm1.dir_8_density/'
+# path to test data files
+path_den_test = 'm1.dir_8_density/'
+path_kin_test = 'm1.dir_8_kinematics/'
 
 # parameters (model)
 n_mesh=50
@@ -58,7 +60,7 @@ nmodel=90000
 img_rows, img_cols = n_mesh, n_mesh
 n_mesh2=n_mesh*n_mesh-1
 n_mesh3=n_mesh*n_mesh
-input_shape = (img_rows, img_cols, 1)
+input_shape = (img_rows, img_cols, 2)
 
 # -----------------------------------------------------------------------
 # function
@@ -75,7 +77,7 @@ def read_data(path):
 	with open(path+'2dfvn.dat') as f:
 		lines1=f.readlines()
 	X=np.zeros((nmodel,n_mesh3))
-	y=np.zeros((nmodel,num_classes))
+	y=np.zeros((nmodel,2))
 
 	# For 2D density map data
 	ibin=0
@@ -112,15 +114,34 @@ def read_data(path):
 
 # extract training data
 print('reading training data')
-(x_train, y_train) = read_data(path_train)
+(train_X_den, train_y_den) = read_data(path_den_train)
+(train_X_kin, train_y_kin) = read_data(path_kin_train)
 
 # extracting test data
 print('reading test data')
-(x_test, y_test) = read_data(path_test)
+(test_X_den, test_y_den) = read_data(path_den_test)
+(test_X_kin, test_y_kin) = read_data(path_kin_test)
+
+# check equality in y train and test arrays and stop
+train_equal = np.array_equal(train_y_den, train_y_kin)
+test_equal = np.array_equal(test_y_den, test_y_kin)
+print('train y array equal: ' + str(train_equal))
+print('test y array equal: ' + str(train_equal))
+if (train_equal == False | test_equal == False):
+	sys.exit()
+else:
+	pass
+y_train = train_y_den
+y_test = test_y_den
+
+# reconstruct x_train and x_test (join images as channels)
+print('reconstructing training data')
+x_train = np.concatenate((train_X_den, train_X_kin), axis=3)
+x_test = np.concatenate((test_X_den, test_X_kin), axis=3)
 
 # conversions where necessary
-y_train = conversion.v_to_v2(y_train)
-y_test = conversion.v_to_v2(y_test)
+# y_train = conversion.v_to_v2(y_train)
+# y_test = conversion.v_to_v2(y_test)
 
 # -----------------------------------------------------------------------
 # training models
@@ -138,7 +159,7 @@ model.add(Dropout(0.25))
 model.add(Flatten())
 model.add(Dense(128, activation='relu'))
 model.add(Dropout(0.5))
-model.add(Dense(num_classes, activation='linear'))
+model.add(Dense(2, activation='linear'))
 model.compile(loss='mean_squared_error',
               optimizer=keras.optimizers.Adadelta(),
 			  metrics=['accuracy'])

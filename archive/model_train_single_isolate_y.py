@@ -1,6 +1,6 @@
 """
 
-This script takes a sample from the 2dfv.dat file (containing images of galaxies) and plots them. Galaxy images are 50x50
+This script takes a sample from the 2dft.dat file (containing images of galaxies) and plots them. Galaxy images are 50x50
 By Austin Shen
 06/06/2018
 
@@ -16,6 +16,7 @@ from keras import backend as K
 from keras.models import Sequential, load_model, model_from_json
 from keras.layers import Dense, Dropout, Flatten, Conv2D, MaxPooling2D
 from keras.utils import np_utils
+from keras.applications import imagenet_utils
 
 # system
 import os.path
@@ -25,12 +26,9 @@ import argparse
 # other packages
 import numpy as np
 import random
-# import matplotlib
-# matplotlib.use('Agg')
-# import matplotlib.pyplot as plt
-
-# written packages
-import y_conversion as conversion
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 
 # -----------------------------------------------------------------------
 # constants
@@ -41,18 +39,18 @@ ap.add_argument("-e", "--epochs", required=True, help='number of epochs')
 args = vars(ap.parse_args())
 epochs = int(args['epochs'])
 
+# path = '../data/m1.dir_6_density/'
+#path_train = str(raw_input('path to train data files: '))
+#path_test = str(raw_input('path to test data files: '))
+path_train = '../data/m1.dir_9_density/'
+path_test = '../data/m1.dir_8_density/'
+
 # Choosing parameters
 batch_size = 32
-num_classes = 1
 print('epochs = %s, batch size = %s' % (epochs, batch_size))
 
-# path to training data files
-path_train = 'm1.dir_9_density/'
-
-# path to test data files (for the training process)
-path_test = 'm1.dir_8_density/'
-
-# parameters (model)
+# parameters
+num_classes = 2
 n_mesh=50
 nmodel=90000
 img_rows, img_cols = n_mesh, n_mesh
@@ -61,66 +59,73 @@ n_mesh3=n_mesh*n_mesh
 input_shape = (img_rows, img_cols, 1)
 
 # -----------------------------------------------------------------------
-# function
+# read data
 
-# read function for map data
-def read_data(path):
+print("Reading training data")
 
-	# update to terminal
-	print('reading data from: ' + str(path))
+# read files
+with open(path_train+'2dfv.dat') as f:
+  lines=f.readlines()
+with open(path_train+'2dfvn.dat') as f:
+  lines1=f.readlines()
 
-	# read files
-	with open(path+'2dfv.dat') as f:
-		lines=f.readlines()
-	with open(path+'2dfvn.dat') as f:
-		lines1=f.readlines()
-	X=np.zeros((nmodel,n_mesh3))
-	y=np.zeros((nmodel,num_classes))
+x_train=np.zeros((nmodel,n_mesh3))
+y_train=np.zeros((nmodel,1))
 
-	# For 2D density map data
-	ibin=0
-	jbin=-1
-	for num,j in enumerate(lines):
-		jbin=jbin+1
-		tm=j.strip().split()
-		X[ibin,jbin]=float(tm[0])
-		if jbin == n_mesh2:
-			ibin+=1
-			jbin=-1
+# For 2D density map data
+ibin=0
+jbin=-1
+for num,j in enumerate(lines):
+  jbin=jbin+1
+  tm=j.strip().split()
+  x_train[ibin,jbin]=float(tm[0])
+  if jbin == n_mesh2:
+    ibin+=1
+    jbin=-1
 
-	# Y output
-	ibin=0
-	for num,j in enumerate(lines1[1:]):
-		tm=j.strip().split()
-		### Need to choose variable of interest ###
-		### tm[0] <- vrel, tm[1] <- rho ###
-		if (num_classes == 1):
-			y[ibin,0]=float(tm[0])
-		elif (num_classes == 2):
-			y[ibin,0]=float(tm[0])
-			y[ibin,1]=float(tm[1])
-		ibin+=1
+# Y output (just taking vrel)
+ibin=0
+for num,j in enumerate(lines1[1:]):
+  tm=j.strip().split()
+  y_train[ibin,0]=float(tm[0])
+  ibin+=1
 
-	# reshape
-	X = X.reshape(X.shape[0], img_rows, img_cols, 1)
-
-	# return data
-	return(X, y)
+x_train = x_train.reshape(x_train.shape[0], img_rows, img_cols, 1)
 
 # -----------------------------------------------------------------------
-# reading training data
+# set up training and test data
 
-# extract training data
-print('reading training data')
-(x_train, y_train) = read_data(path_train)
+print("Reading test data")
 
-# extracting test data
-print('reading test data')
-(x_test, y_test) = read_data(path_test)
+# arrays for test data
+x_test=np.zeros((nmodel,n_mesh3))
+y_test=np.zeros((nmodel,1))
 
-# conversions where necessary
-y_train = conversion.v_to_v2(y_train)
-y_test = conversion.v_to_v2(y_test)
+# read test data
+with open(path_test+'2dfv.dat') as f:
+  lines=f.readlines()
+with open(path_test+'2dfvn.dat') as f:
+  lines1=f.readlines()
+
+# test X
+ibin=0
+jbin=-1
+for num,j in enumerate(lines):
+  jbin=jbin+1
+  tm=j.strip().split()
+  x_test[ibin,jbin]=float(tm[0])
+  if jbin == n_mesh2:
+    ibin+=1
+    jbin=-1
+
+# test Y (just taking vrel)
+ibin=0
+for num,j in enumerate(lines1[1:]):
+  tm=j.strip().split()
+  y_test[ibin,0]=float(tm[0])
+  ibin+=1
+
+x_test = x_test.reshape(x_test.shape[0], img_rows, img_cols, 1)
 
 # -----------------------------------------------------------------------
 # training models
@@ -138,10 +143,10 @@ model.add(Dropout(0.25))
 model.add(Flatten())
 model.add(Dense(128, activation='relu'))
 model.add(Dropout(0.5))
-model.add(Dense(num_classes, activation='linear'))
+model.add(Dense(1, activation='linear'))
 model.compile(loss='mean_squared_error',
               optimizer=keras.optimizers.Adadelta(),
-			  metrics=['accuracy'])
+			  metrics=['mse'])
 history = model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs,
           verbose=1, validation_data=(x_test, y_test))
 
@@ -150,9 +155,11 @@ history = model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs,
 
 print("Saving model weights")
 
-# weights and models
-model.save_weights("m1.dir_9_e300_joint_rho_weights.h5")
-model.save("m1.dir_9_e300_joint_rho_model.h5")
+# serialize weights to HDF5
+model.save_weights("./output/m1.dir_9_e300_rho_weights.h5")
+
+# save model to loadable file
+model.save("./output/m1.dir_9_e300_rho_model.h5")
 
 # -----------------------------------------------------------------------
 # plot results
@@ -162,23 +169,13 @@ sys.exit()
 print("Plotting performance")
 
 # summarize history for accuracy
-plt.plot(history.history['acc'])
-plt.plot(history.history['val_acc'])
-plt.title('model accuracy')
-plt.ylabel('accuracy')
+plt.plot(history.history['mse'])
+plt.plot(history.history['val_mse'])
+plt.title('model vrel mse')
+plt.ylabel('mse')
 plt.xlabel('epoch')
 plt.legend(['train', 'test'], loc='upper left')
-plt.savefig('m1.dir_9_e300_accuracy.png')
-plt.close()
-
-# summarize history for loss
-plt.plot(history.history['loss'])
-plt.plot(history.history['val_loss'])
-plt.title('model loss')
-plt.ylabel('loss')
-plt.xlabel('epoch')
-plt.legend(['train', 'test'], loc='upper left')
-plt.savefig('m1.dir_9_e300_loss.png')
+plt.savefig('./output/m1.dir_9_e300_vrel_mse.png')
 plt.close()
 
 # -----------------------------------------------------------------------
