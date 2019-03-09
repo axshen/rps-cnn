@@ -32,7 +32,7 @@ def main():
     EPOCHS = 50
     NUM_CLASSES = 2 if (pred_var == 'rv') or (pred_var == 'P_RPS') else 1
     NUM_MAPS = 2 if map_type == 'joint' else 1
-    nmodel = 80000 if test_num == '9' else 10000
+    nmodel = 90000 if test_num == '9' else 10000
 
     # parameters
     path_data = "../data/m1.dir_%s_%s/" % (test_num, map_type)
