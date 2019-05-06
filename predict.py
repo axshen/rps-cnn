@@ -29,7 +29,6 @@ def main():
 
     # Choosing parameters
     BATCH_SIZE = 64
-    EPOCHS = 50
     NUM_CLASSES = 2 if (pred_var == 'rv') or (pred_var == 'P_RPS') else 1
     NUM_MAPS = 2 if map_type == 'joint' else 1
     nmodel = 90000 if test_num == '9' else 10000
@@ -39,8 +38,6 @@ def main():
     path_model = "../gcloud_trained/m9.dir_e300_%s_%s/" % (map_type, pred_var)
     n_mesh = 50
     img_rows, img_cols = n_mesh, n_mesh
-    n_mesh2 = n_mesh * n_mesh - 1
-    n_mesh3 = n_mesh * n_mesh
     input_shape = (img_rows, img_cols, NUM_MAPS)
 
     # read test data and performing conversions

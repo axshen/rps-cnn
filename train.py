@@ -37,9 +37,7 @@ def main():
     nmodel_train = 90000
     nmodel_test = 10000
     img_rows, img_cols = n_mesh, n_mesh
-    n_mesh2 = n_mesh * n_mesh - 1
-    n_mesh3 = n_mesh * n_mesh
-    input_shape = (img_rows, img_cols, 1)
+    input_shape = (img_rows, img_cols, NUM_MAPS)
 
     # read test data and performing conversions
     print("Reading data")
