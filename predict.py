@@ -18,13 +18,13 @@ import argparse
 import random
 import matplotlib.pyplot as plt
 
-from utils import *
+import utils
 
 def main():
 
     # test file
-    test_num = '8'
-    pred_var = 'P_RPS'
+    test_num = '7'
+    pred_var = 'r'
     map_type = 'density'
 
     # Choosing parameters
@@ -36,14 +36,14 @@ def main():
     # parameters
     path_data = "../data/m1.dir_%s_%s/" % (test_num, map_type)
     path_model = "../gcloud_trained/m9.dir_e300_%s_%s/" % (map_type, pred_var)
+    # path_model = "../alternate_architectures_gcp/iter2/"
     n_mesh = 50
     img_rows, img_cols = n_mesh, n_mesh
     input_shape = (img_rows, img_cols, NUM_MAPS)
 
     # read test data and performing conversions
     print("Reading data")
-    (x_test, y_test) = read_data(path_data, nmodel, NUM_CLASSES, pred_var)
-    y_test = RPS_P(y_test[:,0], y_test[:,1])
+    (x_test, y_test) = utils.inout.read_data(path_data, nmodel, NUM_CLASSES, pred_var)
 
     # sometimes model doesn't load from model.h5
     print("Loading model")
@@ -74,7 +74,7 @@ def main():
 
     # results
     print("Results and figures")
-    test_error = mse(preds, y_test)
+    test_error = utils.conversion.mse(preds, y_test)
     print('mse: %.5f' % test_error)
     # plot_histogram(preds, pred_var)
     # plot_compare(preds, y_test)
