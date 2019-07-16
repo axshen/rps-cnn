@@ -4,4 +4,4 @@ Research to determine the IGM density and relative velocity of simulated galaxie
 
 Example simulated 2D density and kinematics map images with corresponding IGM density. 
 
-![galaxy sample image](analysis/sample_galaxies.png)
+![galaxy sample image](images/sample_galaxies.png)
