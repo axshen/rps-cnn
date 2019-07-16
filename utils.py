@@ -1,11 +1,44 @@
-import numpy as np
-import matplotlib.pyplot as plt
-import sys
 import random
+import sys
+import matplotlib
+import matplotlib.pyplot as plt
+import numpy as np
+import math
+
 
 class inout:
     def __init__(self):
         pass
+
+    def read_file(file_path, nmodel, num_classes):
+        """
+        Method for reading additional files provided.
+        """
+        n_mesh = 50
+        img_rows, img_cols = n_mesh, n_mesh
+        n_mesh2 = n_mesh * n_mesh - 1
+        n_mesh3 = n_mesh * n_mesh
+        input_shape = (img_rows, img_cols, 1)
+
+        X = np.zeros((nmodel, n_mesh3))
+
+        with open(file_path) as f:
+            lines_X = f.readlines()
+
+        # For 2D density map data
+        ibin = 0
+        jbin = -1
+        for num, j in enumerate(lines_X):
+            jbin = jbin + 1
+            tm = j.strip().split()
+            X[ibin, jbin] = float(tm[0])
+            if jbin == n_mesh2:
+                ibin += 1
+                jbin = - 1
+
+        X = X.reshape(X.shape[0], img_rows, img_cols, 1)
+
+        return X
 
     def read_data(path, nmodel, num_classes, param):
         """
@@ -40,7 +73,7 @@ class inout:
             X[ibin, jbin] = float(tm[0])
             if jbin == n_mesh2:
                 ibin += 1
-                jbin =- 1
+                jbin = - 1
 
         # Y output
         ibin = 0
@@ -98,6 +131,7 @@ class inout:
                 f.write(str(preds[i][0]) + ',' + str(preds[i][1]) + '\n')
         f.close()
 
+
 class conversion:
     def __init__(self):
         pass
@@ -135,16 +169,87 @@ class conversion:
         mse = np.mean(difference ** 2)
         return mse
 
+
 class visualisation:
     def __init__(self):
         pass
+
+    def grid_histogram(data, plot_title, titles, x_labels, y_labels, save, filename):
+        """
+        Plot histogram of data.
+        """
+        plt.rc('text', usetex=True)
+        plt.rc('font', family='serif')
+        subtitle_font = {'weight': 'normal', 'size': 12}
+        title_font = {'weight': 'bold', 'size': 14}
+        text_properties = {'verticalalignment': 'top', 'horizontalalignment': 'left'}
+    
+        n = len(data)
+        dim1 = math.ceil(math.sqrt(n))
+        dim2 = math.ceil(n / dim1)
+        bins = 40
+
+        plt.figure()
+        for i in range(n):
+            dat = data[i]
+            ax = plt.subplot(dim2, dim1, i + 1, frame_on=True)
+            x, bins, p = ax.hist(dat[dat != 0], bins=bins, density=True)
+
+            for item in p:
+                item.set_height(item.get_height() / max(x))
+
+            if (i % dim1 == 0):
+                ax.set_ylabel(y_labels[int(i / dim1)])
+            if (i < dim1):
+                ax.set_title(x_labels[i])
+
+            ax.set_ylim([0.0, 1.2])
+            ax.text(0.0, 1.15, titles[i], **text_properties, **subtitle_font)
+
+        plt.suptitle(plot_title, **title_font)
+        plt.savefig(filename) if save else plt.show()
+
+    def grid_images(X, plot_title, titles, x_labels, y_labels, save, filename):
+        """
+        Plot a grid of 2D map images.
+        """
+        plt.rc('text', usetex=True)
+        plt.rc('font', family='serif')
+        subtitle_font = {'weight': 'normal', 'size': 12, 'color': 'white'}
+        title_font = {'weight': 'bold', 'size': 14}
+
+        n = X.shape[0]
+        dim1 = math.ceil(math.sqrt(n))
+        dim2 = math.ceil(n / dim1)
+
+        plt.figure()
+
+        for i in range(n):
+            image = np.matrix(X[i])
+            ax = plt.subplot(dim2, dim1, i + 1, frame_on=False)
+            ax.text(0.1, 0.1, titles[i], verticalalignment='top', horizontalalignment='left', **subtitle_font)
+
+            ax.set_xticklabels([])
+            ax.set_xticks([])
+            ax.set_yticklabels([])
+            ax.set_yticks([])
+            
+            if (i % dim1 == 0):
+                ax.set_ylabel(y_labels[int(i / dim1)])
+            if (i < dim1):
+                ax.set_title(x_labels[i])
+            ax.imshow(image)
+
+        plt.subplots_adjust(wspace=0.01, hspace=-0.19)
+        plt.suptitle(plot_title, **title_font, y=1.0)
+        plt.savefig(filename) if save else plt.show()
 
     def plot_galaxy(X, y, index):
         """
         Function to plot galaxies from 2D map data
         """
         galaxy_choice = np.matrix(X[index])
-        plt.imshow(galaxy_choice, interpolation = "nearest")
+        plt.imshow(galaxy_choice, interpolation="nearest")
         plt.title('Galaxy #%i, rho: %.2f' % (index, y[index]))
         plt.show()
 
@@ -163,12 +268,12 @@ class visualisation:
         """
         Compare predictions with true values for paper figures
         """
-        x_eq = np.arange(0,10,1)
-        y_eq = np.arange(0,10,1)
+        x_eq = np.arange(0, 10, 1)
+        y_eq = np.arange(0, 10, 1)
         plt.rc('text', usetex=True)
         plt.rc('font', family='serif')
         plt.plot(true, pred, 'ro', alpha=0.01)
-        plt.plot(x_eq, y_eq, color = 'black', dashes =[2, 2])
+        plt.plot(x_eq, y_eq, color='black', dashes=[2, 2])
         plt.title("2D Density")
         plt.xlabel(r"$P'_{rps}$")
         plt.ylabel(r'$P_{rps}$')

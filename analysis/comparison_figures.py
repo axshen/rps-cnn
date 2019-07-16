@@ -60,9 +60,6 @@ def subplot_performance(dat_den, dat_kin, dat_both, truth):
     plt.rc('font', family='serif')
 
     ax = [plt.subplot(3, 1, i + 1) for i in range(3)]
-    for a in ax:
-       a.set_xticklabels([])
-       a.set_yticklabels([])
     plt.subplots_adjust(wspace=0., hspace=0.)
 
     plt_min = -0.5
@@ -90,10 +87,11 @@ def subplot_performance(dat_den, dat_kin, dat_both, truth):
     plt.xlim((plt_min, plt_max_x))
     plt.text(0, 10, '2D Joined')
 
-    ax[2].set_xlabel(r'$\rho{}_{igm,c}$', size='large')
-    ax[1].set_ylabel(r"$\rho{}_{igm,p}$", size='large')
+    ax[2].set_xlabel(r'$\rho{}_{igm,c}$', fontsize=16)
+    ax[1].set_ylabel(r"$\rho{}_{igm,p}$", fontsize=16)
 
-    plt.show()
+    # plt.show()
+    plt.savefig('Fig3.pdf')
     # plt.savefig('Fig3.eps', format = 'eps', dpi = 300)
 
 def subplot_histograms(dat_den, dat_kin, dat_both, truth):
@@ -134,13 +132,14 @@ def subplot_histograms(dat_den, dat_kin, dat_both, truth):
     plt.xlim((plt_min, plt_max_x))
     plt.title('2D Joined')
 
-    ax[0].set_xlabel(r'$|\frac{\rho{}_{igm,p} - \rho_{igm,c}}{\rho_{igm,c}}|$', size = 'large')
-    ax[1].set_xlabel(r'$|\frac{\rho{}_{igm,p} - \rho_{igm,c}}{\rho_{igm,c}}|$', size = 'large')
-    ax[2].set_xlabel(r'$|\frac{\rho{}_{igm,p} - \rho_{igm,c}}{\rho_{igm,c}}|$', size = 'large')
-    ax[0].set_ylabel("N", size='large')
+    ax[0].set_xlabel(r'$|\frac{\rho{}_{igm,p} - \rho_{igm,c}}{\rho_{igm,c}}|$', fontsize=16)
+    ax[1].set_xlabel(r'$|\frac{\rho{}_{igm,p} - \rho_{igm,c}}{\rho_{igm,c}}|$', fontsize=16)
+    ax[2].set_xlabel(r'$|\frac{\rho{}_{igm,p} - \rho_{igm,c}}{\rho_{igm,c}}|$', fontsize=16)
+    ax[0].set_ylabel("N", fontsize=16)
 
     # plt.show()
-    plt.savefig('Fig4.eps', format = 'eps', dpi = 300)
+    # plt.savefig('Fig4.pdf')
+    # plt.savefig('Fig4.eps', format = 'eps', dpi = 300)
 
 def main():
 
@@ -174,8 +173,8 @@ def main():
     rho_7 = read_y(truth_dir + dir_7 + f_y, nmodel = 10000, index = 1)
 
     # plotting performance plots
-    # subplot_performance(dat_den_1, dat_kin_1, dat_joined_1, rho_8)
-    subplot_histograms(dat_den_1, dat_kin_1, dat_joined_1, rho_8)
+    subplot_performance(dat_den_1, dat_kin_1, dat_joined_1, rho_8)
+    # subplot_histograms(dat_den_1, dat_kin_1, dat_joined_1, rho_8)
 
     # mse rho
     mse_joined = np.mean((dat_joined_1 - rho_8) ** 2)
