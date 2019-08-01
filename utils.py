@@ -64,6 +64,9 @@ class inout:
         X = np.zeros((nmodel, n_mesh3))
         y = np.zeros((nmodel, num_classes))
 
+        print(X.shape)
+        print(y.shape)
+
         # For 2D density map data
         ibin = 0
         jbin = -1
@@ -85,12 +88,13 @@ class inout:
                 elif (param == 'r'):
                     y[ibin, 0] = float(tm[1])
                 else:
-                    print("prediction parameter conversion applied")
                     if (param == 'v2'):
-                        y[ibin, 0] = v_to_v2(float(tm[0]))
+                        y[ibin, 0] = conversion.v_to_v2(float(tm[0]))
                     elif (param == 'P_RPS'):
-                        y[ibin, 0] = float(tm[0])
-                        y[ibin, 1] = float(tm[1])
+                        v = float(tm[0])
+                        rho = float(tm[1])
+                        P_rps = conversion.P_RPS(v, rho)
+                        y[ibin, 0] = P_rps
                     else:
                         print('Error in "param" variable (wot u choose)')
                         sys.exit()
@@ -146,16 +150,16 @@ class conversion:
         v2 = 10 * (v0 ** 2 - v0_min2) / (v0_max2 - v0_min2)
         return v2
 
-    def RPS_P(v, rho):
+    def P_RPS(v, rho):
         """
         Defining RPS pressure as potential prediction variable
         """
         rho0 = rho * (1 - 0.1) / (10) + 0.1
         v0 = v * (0.7 - 0.3) / (10) + 0.3
         P0 = rho0 * v0 ** 2
-        P0_min = np.min(P0)
-        P0_max = np.max(P0)
-        P = 10 * (P0 - P0_min) / (P0_max - P0_min)
+        P0_min = 0.009
+        P0_max = 0.49
+        P = 10.0 * (P0 - P0_min) / (P0_max - P0_min)
         return P
 
     def mse(preds, truth):
@@ -174,7 +178,7 @@ class visualisation:
     def __init__(self):
         pass
 
-    def grid_histogram(data, plot_title, titles, x_labels, y_labels, save, filename):
+    def grid_histogram(data, plot_title, titles, plot_labels, x_labels, y_labels, wspace, hspace, save, filename):
         """
         Plot histogram of data.
         """
@@ -189,27 +193,40 @@ class visualisation:
         dim2 = math.ceil(n / dim1)
         bins = 40
 
-        plt.figure()
+        fig = plt.figure()
+        ax_main = plt.subplot(111)
+        ax_main.set_ylabel('Normalised Density')
         for i in range(n):
             dat = data[i]
             ax = plt.subplot(dim2, dim1, i + 1, frame_on=True)
             x, bins, p = ax.hist(dat[dat != 0], bins=bins, density=True)
+            
+            ax.tick_params(labelsize=7)
 
             for item in p:
                 item.set_height(item.get_height() / max(x))
 
             if (i % dim1 == 0):
                 ax.set_ylabel(y_labels[int(i / dim1)])
+            else:
+                ax.set_yticks([])
+
+            if (i < 3):
+                ax.set_xticks([])
+
             if (i < dim1):
                 ax.set_title(x_labels[i])
 
-            ax.set_ylim([0.0, 1.2])
-            ax.text(0.0, 1.15, titles[i], **text_properties, **subtitle_font)
+            ax.set_ylim([0.0, 1.1])
+            ax.text(0.0, 1.05, titles[i], **text_properties, **subtitle_font)
 
+        fig.text(0.5, 0.04, 'Pixel Value (Normalised)', ha='center', va='center', size=12)
+        fig.text(0.02, 0.5, 'Frequency (Normalised)', ha='center', va='center', rotation='vertical', size=12)
+        plt.subplots_adjust(wspace=wspace, hspace=hspace)
         plt.suptitle(plot_title, **title_font)
         plt.savefig(filename) if save else plt.show()
 
-    def grid_images(X, plot_title, titles, x_labels, y_labels, save, filename):
+    def grid_images(X, plot_title, titles, x_labels, y_labels, wspace, hspace, save, filename):
         """
         Plot a grid of 2D map images.
         """
@@ -221,6 +238,8 @@ class visualisation:
         n = X.shape[0]
         dim1 = math.ceil(math.sqrt(n))
         dim2 = math.ceil(n / dim1)
+
+        assert (len(titles) == n), "Number of titles incorrect (expected %i)" % n
 
         plt.figure()
 
@@ -234,13 +253,15 @@ class visualisation:
             ax.set_yticklabels([])
             ax.set_yticks([])
             
-            if (i % dim1 == 0):
-                ax.set_ylabel(y_labels[int(i / dim1)])
-            if (i < dim1):
-                ax.set_title(x_labels[i])
+            if y_labels is not None:
+                if (i % dim1 == 0):
+                    ax.set_ylabel(y_labels[int(i / dim1)])
+            if x_labels is not None:
+                if (i < dim1):
+                    ax.set_title(x_labels[i])
             ax.imshow(image)
 
-        plt.subplots_adjust(wspace=0.01, hspace=-0.19)
+        plt.subplots_adjust(wspace=wspace, hspace=hspace)
         plt.suptitle(plot_title, **title_font, y=1.0)
         plt.savefig(filename) if save else plt.show()
 
@@ -275,6 +296,7 @@ class visualisation:
         plt.plot(true, pred, 'ro', alpha=0.01)
         plt.plot(x_eq, y_eq, color='black', dashes=[2, 2])
         plt.title("2D Density")
-        plt.xlabel(r"$P'_{rps}$")
-        plt.ylabel(r'$P_{rps}$')
+        plt.xlabel(r"$P_{rps, c}$", fontsize=14)
+        plt.ylabel(r'$P_{rps, p}$', fontsize=14)
+        plt.tight_layout()
         # plt.show()
