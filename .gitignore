@@ -1,3 +1,7 @@
 __pycache__
 .ipynb_checkpoints
-archive/
+.vscode
+archive
+models
+weights
+plaidml

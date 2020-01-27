@@ -33,7 +33,7 @@ def main():
 
     write_file = "/Users/austin.shen/Dropbox/UWA/ICRAR_Kenji/plots/paper/FIG4.pdf"
     plot_title = ""
-    titles = ["No RP", r"$\rho{}_{igm}=0.015$", r"$\rho{}_{igm}=0.15$", "", "", ""]
+    titles = ["No RP", r"$\rho{}_{\rm igm}=0.015\rho{}_{\rm dm}$", r"$\rho{}_{\rm igm}=0.15\rho{}_{\rm dm}$", "", "", ""]
     plot_labels = None
     x_labels = ["T=0.0 Gyr", "T=0.14 Gyr", "T=0.14 Gyr"]
     y_labels = ["2D Density", "2D Kinematics", ""]

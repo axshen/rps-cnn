@@ -16,20 +16,14 @@ if __name__ == "__main__":
     files.sort()
     data = []
     for file in files:
-        print(file)
         dat = utils.inout.read_file(file, n, 1)
         data.append(dat)
 
     data_array = np.array(data)
     data_array = data_array[0]
+    img = data_array[-1,:,:,0]
 
-    write_file = "/Users/austin.shen/Dropbox/UWA/ICRAR_Kenji/plots/paper/FIG1.pdf"
-    plot_title = ""
-    titles = ["%.3f Gyr" % float(i * 0.035) for i in range(9)]
-    x_labels = None
-    y_labels = None
-
-    utils.visualisation.grid_images(
-        data_array, plot_title=plot_title, titles=titles, x_labels=x_labels, y_labels=y_labels, 
-        wspace=-0.5, hspace=-0.05,
-        save=True, filename=write_file)
+    plt.imshow(img)
+    plt.tight_layout()
+    plt.axis('off')
+    plt.savefig("galaxy.png", transparent=True)
