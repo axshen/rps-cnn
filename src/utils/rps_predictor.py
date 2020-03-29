@@ -79,3 +79,9 @@ class RPSPredictor():
             y_p:    Array of predictions of RP parameter from input images X.
         """
         return self.model.predict(X)
+
+    def mean_activation(self, X, layer=2):
+        """
+
+        """
+        pass
