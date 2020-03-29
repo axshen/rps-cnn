@@ -1,7 +1,19 @@
-# ICRAR
+# Prediction of Ram Pressure Stripping (RPS) parameters with CNNs
 
-Research to determine the IGM density and relative velocity of simulated galaxies undergoing ram pressure stripping using convolutional neural networks. Work with Kenji Bekki (kenji.bekki@uwa.edu.au).
+![HI map dorado](sample_data/hI-dorado.jpg) ![simulated disc galaxy](sample_data/galaxy.png)
 
-Example simulated 2D density and kinematics map images with corresponding IGM density. 
+## Description
 
-![galaxy sample image](images/sample_galaxies.png)
+We have trained CNN models to predict RPS parameters (IGM density rho\_igm and relative velocity v\_rel) from 2D density and kinematic maps of disc galaxies undergoing RPS.
+
+## Usage
+
+We provide a sample of images which can be used for testing our trained model. 
+
+1. `pip install -r requirements.txt`
+2. Install pre-trained model.
+3. `python src.predict.py`
+
+
+
+
