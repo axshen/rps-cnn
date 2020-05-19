@@ -1,6 +1,6 @@
 # Prediction of Ram Pressure Stripping (RPS) parameters with CNNs
 
-![HI map dorado](sample_data/HI-dorado.jpg) ![simulated disc galaxy](sample_data/galaxy.png)
+![simulated disc galaxy](sample_data/galaxy.png)
 
 ## Description
 
@@ -13,7 +13,3 @@ We provide a sample of images which can be used for testing our trained model.
 1. `pip install -r requirements.txt`
 2. Install pre-trained model.
 4. `python src/predict.py`
-
-
-
-

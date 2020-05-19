@@ -1,19 +1,19 @@
-from keras.models import Sequential
-from keras.layers import Dense, Dropout, Flatten
-from keras.layers import Conv2D, MaxPooling2D
-from keras.models import load_model
+import tensorflow.keras as keras
+from tensorflow.keras import layers
+from tensorflow.keras.models import Model, load_model
 
 
 class RPSPredictor():
-    """ 
+    """
     Class to capture the necessary attributes and functions for
     using the CNN model for prediction of RPS parameters.
 
     Attributes:
-        model (??):             The Keras trained CNN model instance 
-        input_shape (tuple):    Shape of input map for CNN model 
+        input_shape (tuple):    Shape of input map for CNN model
         output_shape (tuple):   Shape of output node of CNN.
+        model (keras model):    The Keras trained CNN model instance
     """
+
     def __init__(self, n_params=1, n_channels=1):
         """
         The constructor for the RPSPredictor class.
@@ -28,9 +28,28 @@ class RPSPredictor():
                                 2D density or kinematic maps, or n_channel=2 for
                                 two-channeled map predictions.
         """
-        self.model = None
+
         self.output_shape = (n_params)
         self.input_shape = (50, 50, n_channels)
+        self.model = self.__construct_model()
+
+    def __construct_model(self):
+        """
+        Construct CNN model with tensorflow functional API.
+        """
+
+        inputs = keras.Input(shape=self.input_shape, name='img')
+        x = layers.Conv2D(32, 3, activation='relu')(inputs)
+        x = layers.Conv2D(64, 3, activation='relu')(x)
+        x = layers.MaxPooling2D(2)(x)
+        x = layers.Dropout(0.25)(x)
+        x = layers.Flatten()(x)
+        x = layers.Dense(128, activation='relu')(x)
+        x = layers.Dropout(0.5)(x)
+        outputs = layers.Dense(self.output_shape, activation='linear')(x)
+        self.model = Model(inputs, outputs, name='rps_predictor')
+        self.model.summary()
+        keras.utils.plot_model(self.model, 'rps_predictor.png', show_shapes=True)
 
     def load(self, file):
         """
@@ -41,6 +60,7 @@ class RPSPredictor():
             file (str):   Path to keras (.h5) model file.
 
         """
+
         self.model = load_model(file)
 
     def train(self, X, y):
@@ -55,17 +75,6 @@ class RPSPredictor():
         Returns:
             model (??):     Trained keras model instance.
         """
-        self.model = Sequential()
-        self.model.add(Conv2D(32, kernel_size=(3, 3),
-                                activation='relu',
-                                input_shape=self.input_shape))
-        self.model.add(Conv2D(64, (3, 3), activation='relu'))
-        self.model.add(MaxPooling2D(pool_size=(2, 2)))
-        self.model.add(Dropout(0.25))
-        self.model.add(Flatten())
-        self.model.add(Dense(128, activation='relu'))
-        self.model.add(Dropout(0.5))
-        self.model.add(Dense(self.output_shape, activation='linear'))
 
     def predict(self, X):
         """
@@ -78,6 +87,7 @@ class RPSPredictor():
         Returns:
             y_p:    Array of predictions of RP parameter from input images X.
         """
+
         return self.model.predict(X)
 
     def mean_activation(self, X, layer=2):
@@ -85,3 +95,10 @@ class RPSPredictor():
 
         """
         pass
+
+    def architecture(self):
+        """
+        Print a summary of the CNN model architecture to the screen.
+        """
+
+        self.model.summary()
