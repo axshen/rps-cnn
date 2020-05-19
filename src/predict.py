@@ -1,10 +1,6 @@
 """ Sample code for prediction of RPS parameters from inference with
 pre-trained CNN model.
 """
-import cv2
-import numpy as np
-import os
-
 
 from utils.io import read_image
 from utils.rps_predictor import RPSPredictor
