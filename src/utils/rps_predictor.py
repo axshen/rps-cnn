@@ -73,8 +73,8 @@ class RPSPredictor():
         galaxy images and corresponding annotations.
 
         Args:
-            X (np.array):   Array of images of shape (N_images, `self.input_shape`).
-            y (np.array):   Annotations corresponding to training images X.
+            X (np.array):   Array (n, 50, 50, n_channels) of input images.
+            y (np.array):   Array (n, n_params) of annotations.
 
         Returns:
             model:          Trained keras model instance.
@@ -92,11 +92,11 @@ class RPSPredictor():
         Runs inference through the model that has been loaded.
 
         Args:
-            X:      Images to run inference over with the trained CNN model
-                    (self.model).
+            X (np.array):  Array (n, 50, 50, n_channels) of images.
 
         Returns:
-            y_p:    Array of predictions of RP parameter from input images X.
+            y_p (np.array): Array (n, n_params) of predictions for RP parameter
+                            from input images X.
         """
 
         return self.model.predict(X)

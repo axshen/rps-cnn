@@ -7,7 +7,7 @@ def show_image(X, index):
     Visualise an image from the training dataset.
 
     Args:
-        X (array):      Array of images
+        X (np.array):   Array (n, 50, 50, n_channels) of images
         index (int):    Index of image to visualise.
     """
 

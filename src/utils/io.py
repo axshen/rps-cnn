@@ -84,3 +84,16 @@ def read_image(f):
     img = np.reshape(cv2.resize(img, in_shape), out_shape)
     img = np.expand_dims(img / np.max(img), axis=0)
     return img
+
+
+def reshape_y(y):
+    """
+    Reshape the output of RPS model prediction to the appropriate format
+    for evaluation.
+
+    Args:
+        y (np.array):
+
+    Returns:
+        y (np.array)
+    """

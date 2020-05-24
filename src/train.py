@@ -14,17 +14,21 @@ def main():
     n_train = int(9e4)
     X_train = read_images(os.path.join(root_dir, train_dir, '2dfv.dat'), n_train)
     y_train = read_annots(os.path.join(root_dir, train_dir, '2dfvn.dat'), n_train)
+    print("finished reading training images")
 
     val_dir = 'data/density/dir8/'
     n_val = int(1e4)
     X_val = read_images(os.path.join(root_dir, val_dir, '2dfv.dat'), n_val)
     y_val = read_annots(os.path.join(root_dir, val_dir, '2dfvn.dat'), n_val)
+    print("finished reading validation images")
 
     # initialise model
     rps_model = RPSPredictor()
     rps_model.compile()
+    print("rps model initialised")
 
     # train
+    print("starting model training...")
     rps_model.train(X_train, y_train, X_val, y_val)
 
 
