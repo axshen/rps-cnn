@@ -1,6 +1,7 @@
 import tensorflow.keras as keras
 from tensorflow.keras import layers
 from tensorflow.keras.models import Model, load_model
+from tensorflow.keras.optimizers import Adadelta
 
 
 class RPSPredictor():
@@ -32,6 +33,7 @@ class RPSPredictor():
         self.output_shape = (n_params)
         self.input_shape = (50, 50, n_channels)
         self.model = self.__construct_model()
+        self.training_history = None
 
     def __construct_model(self):
         """
@@ -47,9 +49,8 @@ class RPSPredictor():
         x = layers.Dense(128, activation='relu')(x)
         x = layers.Dropout(0.5)(x)
         outputs = layers.Dense(self.output_shape, activation='linear')(x)
-        self.model = Model(inputs, outputs, name='rps_predictor')
-        self.model.summary()
-        keras.utils.plot_model(self.model, 'rps_predictor.png', show_shapes=True)
+        model = Model(inputs, outputs, name='rps_predictor')
+        return model
 
     def load(self, file):
         """
@@ -63,7 +64,10 @@ class RPSPredictor():
 
         self.model = load_model(file)
 
-    def train(self, X, y):
+    def compile(self, **kwargs):
+        self.model.compile(optimizer=Adadelta(), loss='mean_squared_error')
+
+    def train(self, X, y, X_val, y_val, batch_size=32, epochs=100):
         """
         Re-train keras model for a new dataset of simulated
         galaxy images and corresponding annotations.
@@ -73,8 +77,15 @@ class RPSPredictor():
             y (np.array):   Annotations corresponding to training images X.
 
         Returns:
-            model (??):     Trained keras model instance.
+            model:          Trained keras model instance.
         """
+
+        self.training_history = self.model.fit(
+            X, y,
+            batch_size=batch_size, epochs=epochs,
+            verbose=1,
+            validation_data=(X_val, y_val)
+        )
 
     def predict(self, X):
         """
@@ -96,9 +107,12 @@ class RPSPredictor():
         """
         pass
 
-    def architecture(self):
+    def summary(self):
         """
         Print a summary of the CNN model architecture to the screen.
         """
 
         self.model.summary()
+
+    def save_summary(self, filename='rps_predictor.png'):
+        keras.utils.plot_model(self.model, filename, show_shapes=True)

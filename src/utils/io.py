@@ -23,12 +23,12 @@ def read_images(file, n):
     ibin = 0
     jbin = -1
     for num, j in enumerate(lines):
-        jbin = jbin + 1
+        jbin += 1
         tm = j.strip().split()
         images[ibin, jbin] = float(tm[0])
-        if jbin == (n_mesh - 1):
+        if jbin == (n_mesh * n_mesh - 1):
             ibin += 1
-            jbin = - 1
+            jbin = -1
 
     return images.reshape(n, n_mesh, n_mesh, 1)
 
