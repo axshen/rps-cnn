@@ -14,21 +14,19 @@ def read_images(file, n):
         X (np.array):   Array of images (N, 50, 50, 1)
     """
 
-    with open(file) as f:
-        lines = f.readlines()
-
     n_mesh = 50
-    images = np.zeros((n, n_mesh * n_mesh))
-
     ibin = 0
     jbin = -1
-    for num, j in enumerate(lines):
-        jbin += 1
-        tm = j.strip().split()
-        images[ibin, jbin] = float(tm[0])
-        if jbin == (n_mesh * n_mesh - 1):
-            ibin += 1
-            jbin = -1
+    images = np.zeros((n, n_mesh * n_mesh))
+
+    with open(file) as f:
+        for line in f:
+            jbin += 1
+            tm = line.strip().split()
+            images[ibin, jbin] = float(tm[0])
+            if jbin == (n_mesh * n_mesh - 1):
+                ibin += 1
+                jbin = -1
 
     return images.reshape(n, n_mesh, n_mesh, 1)
 
@@ -53,7 +51,7 @@ def read_annots(file, n):
     annots = np.zeros((n, n_params))
 
     ibin = 0
-    for num, j in enumerate(lines[1:]):
+    for _, j in enumerate(lines[1:]):
         tm = j.strip().split()
         annots[ibin, 0] = float(tm[0])
         annots[ibin, 1] = float(tm[1])

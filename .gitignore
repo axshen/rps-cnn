@@ -7,3 +7,5 @@ models
 weights
 plaidml
 figures
+records
+**.env_vars**

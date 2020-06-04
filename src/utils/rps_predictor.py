@@ -1,3 +1,5 @@
+import os
+import pickle
 import tensorflow.keras as keras
 from tensorflow.keras import layers
 from tensorflow.keras.models import Model, load_model
@@ -70,7 +72,8 @@ class RPSPredictor():
     def train(self, X, y, X_val, y_val, batch_size=32, epochs=100):
         """
         Re-train keras model for a new dataset of simulated
-        galaxy images and corresponding annotations.
+        galaxy images and corresponding annotations. Saves the training history
+        to a records file.
 
         Args:
             X (np.array):   Array (n, 50, 50, n_channels) of input images.
@@ -86,6 +89,10 @@ class RPSPredictor():
             verbose=1,
             validation_data=(X_val, y_val)
         )
+        
+        write_file = os.getenv('TRAIN_HISTORY', os.path.join(os.path.dirname(__file__), '../records/history'))
+        with open(write_file, 'wb') as f:
+            pickle.dump(self.training_history.history, f)
 
     def predict(self, X):
         """
@@ -116,3 +123,10 @@ class RPSPredictor():
 
     def save_summary(self, filename='rps_predictor.png'):
         keras.utils.plot_model(self.model, filename, show_shapes=True)
+
+    def save(self, filename):
+        """
+        Save model h5
+        """
+
+        self.model.save(filename)
