@@ -97,3 +97,22 @@ def reshape_y(y):
     Returns:
         y (np.array)
     """
+    pass
+
+
+def split_annots(y):
+    """
+    Take array of annots (N, 2) and return v_rel and rho_igm.
+
+    Args:
+        y (np.array):       Array (N, 2) of annotations corresponding
+                            to RPS simulations
+
+    Returns:
+        v_rel (np.array):   Array (N, ) of v_rel
+        rho_igm (np.array): Array (N, ) of rho_igm
+    """
+
+    v_rel = y[:, 0]
+    rho_igm = y[:, 1]
+    return v_rel, rho_igm

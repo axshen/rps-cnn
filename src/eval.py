@@ -15,6 +15,7 @@ def main():
     n_test = int(1e4)
     X_t = read_images(os.path.join(root_dir, test_dir, '2dfv.dat'), n_test)
     y_t = read_annots(os.path.join(root_dir, test_dir, '2dfvn.dat'), n_test)
+    print(y_t.shape)
     print('finished reading test images')
 
     # load trained model
