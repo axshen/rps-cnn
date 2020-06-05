@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def show_image(X, index):
+def show_image(X, index=50):
     """
     Visualise an image from the training dataset.
 

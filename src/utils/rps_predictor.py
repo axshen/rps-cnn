@@ -60,7 +60,7 @@ class RPSPredictor():
         model as an attribute of the class.
 
         Args:
-            file (str):   Path to keras (.h5) model file.
+            file (str):   Path to saved tensorflow model.
 
         """
 

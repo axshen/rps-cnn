@@ -3,19 +3,20 @@
 import os
 import argparse
 from utils.io import read_images, read_annots, split_annots
+from utils.visualise import show_image
 from utils.rps_predictor import RPSPredictor
 
 
 def main():
     # args  
     parser = argparse.ArgumentParser(description='Model training arguments')
-    parser.add_argument('-n', type=int, default=10, help='number of training epochs')
+    parser.add_argument('-e', type=int, default=10, help='number of training epochs')
     args = parser.parse_args()
 
     # env
     train_dir = os.getenv('TRAIN_DIR', os.path.join(os.path.dirname(__file__), '..', '..', 'data/density/dir9/'))
     val_dir = os.getenv('VAL_DIR', os.path.join(os.path.dirname(__file__), '..', '..', 'data/density/dir8/'))
-    saved_model = os.getenv('MODEL_DIR', os.path.join(os.path.dirname(__file__), '../records/model'))
+    saved_model = os.getenv('MODEL_DIR', os.path.join(os.path.dirname(__file__), 'records/model'))
 
     # load data
     print("loading data...")
@@ -23,7 +24,6 @@ def main():
     X_train = read_images(os.path.join(train_dir, '2dfv.dat'), n_train)
     y_train = read_annots(os.path.join(train_dir, '2dfvn.dat'), n_train)
     _, rho_train = split_annots(y_train)
-    print(y_train.shape)
     print("finished reading training images")
 
     n_val = int(1e4)
@@ -40,7 +40,7 @@ def main():
 
     # train
     print("starting model training...")
-    rps_model.train(X_train, rho_train, X_val, rho_val, epochs=args.n)
+    rps_model.train(X_train, rho_train, X_val, rho_val, epochs=args.e)
 
     # save
     rps_model.save(saved_model)
