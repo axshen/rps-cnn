@@ -2,6 +2,7 @@
 
 import os
 import argparse
+import tensorflow as tf
 from utils.io import read_images, read_annots, split_annots
 from utils.visualise import show_image
 from utils.rps_predictor import RPSPredictor
@@ -18,6 +19,12 @@ def main():
     val_dir = os.getenv('VAL_DIR', os.path.join(os.path.dirname(__file__), '..', '..', 'data/density/dir8/'))
     saved_model = os.getenv('MODEL_DIR', os.path.join(os.path.dirname(__file__), 'records/model'))
 
+    # initialise model
+    print("initialising model...")
+    rps_model = RPSPredictor()
+    rps_model.compile(loss=tf.keras.losses.CosineSimilarity(axis=1))
+    print("rps model initialised")
+
     # load data
     print("loading data...")
     n_train = int(9e4)
@@ -31,12 +38,6 @@ def main():
     y_val = read_annots(os.path.join(val_dir, '2dfvn.dat'), n_val)
     _, rho_val = split_annots(y_val)
     print("finished reading validation images")
-
-    # initialise model
-    print("initialising model...")
-    rps_model = RPSPredictor()
-    rps_model.compile()
-    print("rps model initialised")
 
     # train
     print("starting model training...")

@@ -67,7 +67,15 @@ class RPSPredictor():
         self.model = load_model(file)
 
     def compile(self, **kwargs):
-        self.model.compile(optimizer=Adadelta(), loss='mean_squared_error')
+        optimizer = Adadelta()
+        loss = 'mean_square_error'
+        if 'optimizer' in kwargs:
+            optimizer = kwargs.get('optimizer')
+            del kwargs['optimizer']
+        if 'loss' in kwargs:
+            loss = kwargs.get('loss')
+            del kwargs['loss']
+        self.model.compile(optimizer=optimizer, loss=loss, **kwargs)
 
     def train(self, X, y, X_val, y_val, batch_size=32, epochs=100):
         """
