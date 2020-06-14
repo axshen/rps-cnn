@@ -2,7 +2,8 @@ import os
 import pickle
 import tensorflow.keras as keras
 from tensorflow.keras import layers
-from tensorflow.keras.models import Model, load_model
+from tensorflow.keras.models import Model
+from keras.models import load_model
 from tensorflow.keras.optimizers import Adadelta
 
 
@@ -97,7 +98,7 @@ class RPSPredictor():
             verbose=1,
             validation_data=(X_val, y_val)
         )
-        
+
         write_file = os.getenv('TRAIN_HISTORY', os.path.join(os.path.dirname(__file__), '../records/history'))
         with open(write_file, 'wb') as f:
             pickle.dump(self.training_history.history, f)
