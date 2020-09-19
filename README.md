@@ -12,4 +12,6 @@ We provide a sample of images which can be used for testing our trained model.
 
 1. `pip install -r requirements.txt`
 2. Install pre-trained model.
-4. `python src/predict.py`
+3. `python src/predict.py`
+
+Paper available at: http://arxiv.org/abs/2008.03460
